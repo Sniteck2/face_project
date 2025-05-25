@@ -2,6 +2,9 @@ import cv2
 from deepface import DeepFace
 from services import preload_recognition, load_recognition
 from utils import medition
+from camera.camera_factory import get_camera
+from dotenv import load_dotenv
+load_dotenv()
 
 images_folder = 'images'
 
@@ -9,7 +12,12 @@ preload_recognition.analyze_image()
 
 caras_conocidas = load_recognition.face_recognition()
 
-cap = cv2.VideoCapture(0)
+camera = get_camera()
+cap = camera.get_capture()
+
+if not cap.isOpened():
+    print("❌ No se pudo abrir la cámara")
+    exit()
 
 face_casacade = cv2.CascadeClassifier('models/haarcascade_frontalface_default.xml')
 
