@@ -11,8 +11,10 @@ def get_camera_config():
         config = {"type": cam_type.upper()}
         if config["type"] == "IP":
             config["url"] = os.getenv(f"CAMERA_{index}_URL")
+            config["name"] = os.getenv(f"CAMERA_{index}_NAME")
         elif config["type"] == "USB":
             config["index"] = int(os.getenv(f"CAMERA_{index}_INDEX", 0))
+            config["name"] = os.getenv(f"CAMERA_{index}_NAME")
         configs.append(config)
         index += 1
     return configs
