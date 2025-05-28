@@ -1,6 +1,6 @@
 
 import os
-from config import settings
+from src.config import settings
 from deepface import DeepFace
 
 def analyze_image():

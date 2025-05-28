@@ -75,7 +75,7 @@ desktop.ini
 
 # Face recognition outputs (optional)
 outputs/
-logs/
+src/logs/
 
 # Images (optional)
 *.png

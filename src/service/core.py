@@ -1,17 +1,22 @@
 import time
 import cv2
 from deepface import DeepFace
-from service import preload_recognition, load_recognition
-from utils import medition
+from src.service import load_recognition, preload_recognition
+from src.utils import medition
+from src.config import settings
+
 
 class CameraProcessor:
-    def __init__(self, camera_id, camera, name):
+    def __init__(self, camera_id, camera, name, fps=15):
         preload_recognition.analyze_image()
         self.camera_id = camera_id
         self.camera = camera
         self.name = name
+        self.fps = fps
+        self.frame_delay = 1.0 / fps
         self.faces_db = load_recognition.face_recognition()
-        self.face_detector = cv2.CascadeClassifier('models/haarcascade_frontalface_default.xml')
+        self.face_detector = cv2.CascadeClassifier(settings.HAAR_PATH)
+        self.stop = False
 
     def run(self):
         cap = self.camera.get_capture()
@@ -22,7 +27,7 @@ class CameraProcessor:
         window_name = f"Vista - {self.name}"
         print(f"✅ Iniciando {window_name}")
         try:
-            while True:
+            while not self.stop:
                 ret, frame = cap.read()
                 if not ret:
                     print(f"⚠️ Reintentando cámara {self.name}")
@@ -60,7 +65,7 @@ class CameraProcessor:
                 if cv2.waitKey(1) & 0xFF == 27:
                     print(f"🛑 Cerrando {window_name}")
                     break
-                time.sleep(0.01)
+                time.sleep(self.frame_delay)
         except Exception as e:
             print(f"Ocurrio un error, por favor revisar logs, {e}")
             time.sleep(1)

@@ -1,6 +1,7 @@
 import os
 from deepface import DeepFace
-from config import settings
+from src.config import settings
+
 
 def face_recognition():
     model_know = []
