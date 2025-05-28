@@ -1,8 +1,8 @@
 import threading
 from dotenv import load_dotenv
-from service.core import CameraProcessor
-from camera.config import get_camera_config
-from camera.camera_factory import create_camera_instance
+from src.service.core import CameraProcessor
+from src.camera.config import get_camera_config
+from src.camera.camera_factory import create_camera_instance
 
 if __name__ == "__main__":
     load_dotenv()
