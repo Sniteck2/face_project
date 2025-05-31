@@ -1,3 +1,7 @@
+fastapi
+uvicorn[standard]
+python-dotenv
 opencv-python
 deepface
 numpy
+tf-keras
