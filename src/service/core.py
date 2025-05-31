@@ -1,9 +1,13 @@
+import asyncio
 import time
 import cv2
+from datetime import datetime
 from deepface import DeepFace
 from src.service import load_recognition, preload_recognition
 from src.utils import medition
 from src.config import settings
+from src.utils.event_loop import get_event_loop
+from src.api.websocket_events import manager
 
 
 class CameraProcessor:
@@ -44,21 +48,35 @@ class CameraProcessor:
                     try:
                         analysis = DeepFace.analyze(frame, actions=['age','emotion'], enforce_detection=False)
                         embedding = DeepFace.represent(img_path=frame, model_name="Facenet", enforce_detection=False)[0]["embedding"]
+                        match = "Desconocido"
                         found = False
                         for cara in self.faces_db:
                             old_embedding = cara["embedding"]
                             distance = medition.cosine_distance(old_embedding, embedding)
                             if distance < 0.4:
+                                match = cara["name"]
                                 text = f"{cara['name']}, {analysis[0]['dominant_emotion']}"
                             found = True
                             break
-                        if not found:
-                            text = "Rostro no reconocido"
+
+                        event = {
+                            "camera": self.name,
+                            "status": "recognized" if found else "unrecognized",
+                            "name": match if found else None,
+                            "timestap": datetime.utcnow().isoformat(),
+                        }
+
+                        loop = get_event_loop()
+                        if loop:
+                            asyncio.run_coroutine_threadsafe(manager.broadcast(event), loop)
+                        else:
+                            print("⚠️ No se encontró event loop activo para enviar WebSocket.")
 
                         cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
                         cv2.putText(frame, text, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX,
                                     0.9, (255, 255, 255), 2)
                     except Exception as e:
+                        print(f"❌ Error en reconocimiento: {e}")
                         cv2.putText(frame, "No se detectaron rostros", (20, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (100, 100, 1000), 2)
 
                 cv2.imshow(window_name, frame)
