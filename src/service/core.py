@@ -8,6 +8,7 @@ from src.utils import medition
 from src.config import settings
 from src.utils.event_loop import get_event_loop
 from src.api.websocket_events import manager
+from src.core.frame_buffer import update_last_frame
 
 
 class CameraProcessor:
@@ -79,6 +80,7 @@ class CameraProcessor:
                         print(f"❌ Error en reconocimiento: {e}")
                         cv2.putText(frame, "No se detectaron rostros", (20, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (100, 100, 1000), 2)
 
+                update_last_frame(self.camera_id, frame)
                 cv2.imshow(window_name, frame)
                 if cv2.waitKey(1) & 0xFF == 27:
                     print(f"🛑 Cerrando {window_name}")
